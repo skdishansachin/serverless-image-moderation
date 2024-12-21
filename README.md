@@ -4,6 +4,12 @@
 
 This is a serverless image moderation service. The service uses Amazon Rekognition to detect unsafe images and Amazon S3 to store the images. The service is built using AWS CDK and is written in Typescript.
 
+## Use Case
+
+### Scenario 1
+
+Think of a company like Unsplash or Pexels that allows users to upload images that are publicly available. The company wants to ensure that no unsafe/inappropriate images are uploaded to the platform. The company can use this service to automatically detect unsafe images and take appropriate action like flagging the image, moving the image to a quarantine bucket or deleting the image.
+
 ## Architecture
 
 Lambda function is triggered when an image is uploaded to the S3 bucket. The Lambda function uses Amazon Rekognition to detect unsafe images. If an unsafe image is detected, the image is moved to a quarantine S3 bucket. If the image is safe, the image will stay in the original S3 bucket.

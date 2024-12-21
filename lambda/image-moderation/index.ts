@@ -21,17 +21,11 @@ export const handler = async (event: S3Event, _context: Context) => {
             },
         };
 
-        await rekognition.send(new DetectLabelsCommand(params), (error, data) => {
-            if (error) {
-                logger.error('Error detecting labels', { error });
-                return;
-            }
-
+        try {
+            const data = await rekognition.send(new DetectLabelsCommand(params));
             logger.info('Detected labels', { labels: data?.Labels });
-        });
-        // if unsafe, replace the image with a placeholder
-        // notify the user
-        // if safe, do nothing
-        // if not sure, queue the image for manual review (SNS)
+        } catch (error) {
+            logger.error('Error detecting labels', { error });
+        }
     }
 }

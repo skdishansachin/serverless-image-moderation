@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { ServerlessImageModerationCdkStack } from '../lib/serverless-image-moderation-cdk-stack';
+import { ImageModerationStack } from '../lib/image-moderation-stack';
 
 const app = new cdk.App();
-new ServerlessImageModerationCdkStack(
+new ImageModerationStack(
   app,
-  'ServerlessImageModerationCdkStack',
+  'ImageModerationStack',
   {
     /* If you don't specify 'env', this stack will be environment-agnostic.
      * Account/Region-dependent features and context lookups will not work,

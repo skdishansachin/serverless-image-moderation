@@ -2,7 +2,7 @@
   "name": "serverless-image-moderation-cdk",
   "version": "0.1.0",
   "bin": {
-    "serverless-image-moderation-cdk": "bin/serverless-image-moderation-cdk.js"
+    "image-moderation": "bin/image-moderation.js"
   },
   "scripts": {
     "build": "tsc",

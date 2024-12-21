@@ -36,7 +36,7 @@ export class ImageModerationStack extends cdk.Stack {
 
     lambdaFunction.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['rekognition:DetectModerationLabels'],
+        actions: ['rekognition:DetectLabels'],
         resources: ['*'],
         effect: iam.Effect.ALLOW,
       })

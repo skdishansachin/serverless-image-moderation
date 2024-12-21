@@ -20,7 +20,7 @@ export class ImageModerationStack extends cdk.Stack {
     const lambdaFunction = new NodejsFunction(this, 'ImageModerationFunction', {
       functionName: `${this.stackName.toLowerCase()}-image-moderation-function`,
       description: 'Moderates images uploaded to S3',
-      entry: 'lambda/image-moderation/index.ts',
+      entry: 'lambda/image-moderation.ts',
       runtime: Runtime.NODEJS_22_X,
       bundling: {
         minify: true,
@@ -29,7 +29,7 @@ export class ImageModerationStack extends cdk.Stack {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         POWERTOOLS_LOGGER_LOG_EVENT: 'true',
-      }
+      },
     });
 
     bucket.addEventNotification(
@@ -39,7 +39,7 @@ export class ImageModerationStack extends cdk.Stack {
 
     lambdaFunction.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['rekognition:*', 's3:*'],
+        actions: ['rekognition:DetectModerationLabels', 's3:GetObject', 's3:DeleteObject'],
         resources: ['*'],
         effect: iam.Effect.ALLOW,
       })

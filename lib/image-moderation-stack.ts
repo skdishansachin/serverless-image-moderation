@@ -27,6 +27,9 @@ export class ImageModerationStack extends cdk.Stack {
         format: OutputFormat.ESM,
       },
       logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        POWERTOOLS_LOGGER_LOG_EVENT: 'true',
+      }
     });
 
     bucket.addEventNotification(

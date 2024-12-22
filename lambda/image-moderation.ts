@@ -5,7 +5,7 @@ import {
   DetectModerationLabelsCommand,
   DetectModerationLabelsCommandInput,
 } from '@aws-sdk/client-rekognition';
-import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 const logger = new Logger({ serviceName: 'image-moderation' });
 const rekognition = new RekognitionClient();
@@ -13,6 +13,12 @@ const s3 = new S3Client();
 
 export const handler = async (event: S3Event, _context: Context) => {
   logger.logEventIfEnabled(event);
+
+  const quarantineBucket = process.env.QUARANTINE_BUCKET_NAME;
+  if (!quarantineBucket) {
+    logger.error('QUARANTINE_BUCKET_NAME environment variable is not set');
+    throw new Error('QUARANTINE_BUCKET_NAME environment variable is not set');
+  }
 
   for (const record of event.Records) {
     const bucketName = record.s3.bucket.name;
@@ -29,22 +35,29 @@ export const handler = async (event: S3Event, _context: Context) => {
     };
 
     try {
-      const detectModerationLabelsCommandOutput = await rekognition.send(
+      const detectModerationLabels = await rekognition.send(
         new DetectModerationLabelsCommand(params)
       );
-      logger.info('DetectModerationLabelsCommandOutput', {
-        data: detectModerationLabelsCommandOutput,
+      logger.info('Detected Moderation Labels', {
+        data: detectModerationLabels,
       });
 
-      if (!detectModerationLabelsCommandOutput.ModerationLabels) {
+      if (
+        !detectModerationLabels.ModerationLabels ||
+        detectModerationLabels.ModerationLabels.length === 0
+      ) {
         logger.info('No Labels Detected');
-        return;
+        continue;
       }
 
       await s3.send(
-        new DeleteObjectCommand({ Bucket: bucketName, Key: objectKey })
+        new CopyObjectCommand({
+          Bucket: quarantineBucket,
+          CopySource: encodeURIComponent(`${bucketName}/${objectKey}`),
+          Key: objectKey,
+        })
       );
-      logger.info('Object Deleted', { bucketName: bucketName, key: objectKey });
+      logger.info('Object Moved', { bucketName: bucketName, key: objectKey });
     } catch (error) {
       logger.error('Something Went Wrong', { error: error });
     }
